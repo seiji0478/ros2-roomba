@@ -1,8 +1,9 @@
 import serial
-import rclpy                            # ROS2 ライブラリ
-from rclpy.node import Node             # ノードの基本クラス
-from geometry_msgs.msg import Twist     # 速度指令メッセージ
-from .config import RoombaCommand
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from my_msgs.msg import RoombaController
+from .config import RoombaCommand, DeviceConfig
 
 
 class RoombaNode(Node):
@@ -10,7 +11,11 @@ class RoombaNode(Node):
         super().__init__('roomba_node')
 
         try:
-            self.ser = serial.Serial('/dev/ttyUSB1', 115200, timeout=1)
+            self.ser = serial.Serial(
+                DeviceConfig.SERIAL_PORT,
+                DeviceConfig.BAUD_RATE,
+                timeout=DeviceConfig.TIMEOUT
+                )
         except Exception as e:
             self.get_logger().error(f"Serial error: {e}")
             return
@@ -32,12 +37,12 @@ class RoombaNode(Node):
         )
 
     def start_roomba(self):
-        self.ser.write(bytes([RoombaCommand.START]))    # Roomba 起動
-        self.ser.write(bytes([RoombaCommand.SAFE]))     # セーフモード切替え
+        self.ser.write(bytes([RoombaCommand.START.value]))    # Roomba 起動
+        self.ser.write(bytes([RoombaCommand.SAFE.value]))     # セーフモード切替え
 
     def cmd_vel_callback(self, msg):
         """
-        cmd_vel トピックからの Twist メッセージ処理し、Roomba に速度指令を送る
+        cmd_vel トピックから Twist メッセージを処理し、Roomba に速度指令を送る
         """
         # Twist メッセージから線形速度と角速度を取得
         linear = msg.linear.x
@@ -65,7 +70,7 @@ class RoombaNode(Node):
         ※16[bit]値を2バイトに分割して構成
         """
         cmd = [
-            RoombaCommand.DRIVE,
+            RoombaCommand.DRIVE.value,
             (velocity >> 8) & 0xFF,
             velocity & 0xFF,
             (radius >> 8) & 0xFF,

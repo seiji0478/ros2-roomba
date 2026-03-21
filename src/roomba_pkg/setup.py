@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'roomba_node'
+package_name = 'roomba_pkg'
 
 setup(
     name=package_name,
@@ -24,7 +24,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'roomba_node = roomba_node.roomba_node:main'
+            'joy_controller_node = roomba_pkg.joy_controller_node:main',
+            'roomba_controller_node = roomba_pkg.roomba_controller_node:main',
+            'roomba_node = roomba_pkg.roomba_node:main',
         ],
     },
 )
