@@ -47,7 +47,7 @@ class RoombaControllerNode(Node):
                     0, 16,   # rest
                     76, 16,
                     72, 32   # C
-]))
+                    ]))
 
                 self.ser.write(bytes([141, 0]))
                 time.sleep(0.1)
